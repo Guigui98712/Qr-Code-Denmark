@@ -23,7 +23,7 @@ const LINKS = {
   12: { arquitetura: "", alvenaria: "", hidraulica: "" },
   13: { arquitetura: "", alvenaria: "", hidraulica: "" },
   14: { arquitetura: "", alvenaria: "", hidraulica: "" },
-  15: { arquitetura: "", alvenaria: "", hidraulica: "" },
+  15: { arquitetura: "https://drive.google.com/file/d/1OBxyhE9aQx8nBs595VgPGFKLwZq0X5Ou/view?usp=drive_link", alvenaria: "https://drive.google.com/file/d/1eD974a2nE0ez-m7r_fQfx2BD8emDDlQA/view?usp=drive_link", hidraulica: "https://drive.google.com/file/d/1J-TzwRLMvaQj5kqSHl-FoifyWLOLAhCi/view?usp=drive_link" },
   16: { arquitetura: "", alvenaria: "", hidraulica: "" },
   17: { arquitetura: "", alvenaria: "", hidraulica: "" },
   18: { arquitetura: "", alvenaria: "", hidraulica: "" },
