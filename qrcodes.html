@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QR Codes dos andares | Copenhagen</title>
+  <meta name="robots" content="noindex, nofollow">
+  <style>
+    :root { --azul: #0f1b2e; --cinza: #5b6b82; --linha: #d8dfe9; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--azul); background: #f3f6fa; }
+    .wrap { max-width: 1000px; margin: 0 auto; padding: 28px 18px 60px; }
+    h1 { margin: 0 0 6px; font-size: 1.6rem; }
+    p.sub { margin: 0 0 22px; color: var(--cinza); }
+    .barra { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 24px; padding: 16px; background: #fff; border: 1px solid var(--linha); border-radius: 12px; }
+    .barra label { display: flex; flex-direction: column; gap: 6px; flex: 1 1 320px; font-size: 0.9rem; color: var(--cinza); }
+    .barra input { padding: 11px 12px; font-size: 1rem; border: 1px solid var(--linha); border-radius: 8px; color: var(--azul); }
+    button { padding: 11px 16px; font-size: 0.95rem; font-weight: 600; color: #fff; background: var(--azul); border: 0; border-radius: 8px; cursor: pointer; }
+    button.sec { color: var(--azul); background: #fff; border: 1px solid var(--azul); }
+    #aviso { margin: 0 0 18px; color: #a33; font-weight: 600; }
+    .grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 16px; }
+    .card { padding: 12px; text-align: center; background: #fff; border: 1px solid var(--linha); border-radius: 12px; break-inside: avoid; }
+    .card canvas { width: 100%; height: auto; }
+    .card button { width: 100%; margin-top: 8px; }
+    @media print {
+      body { background: #fff; }
+      .barra, #aviso, .card button, h1, p.sub { display: none; }
+      .wrap { padding: 0; max-width: none; }
+      .grade { grid-template-columns: repeat(2, 1fr); gap: 12mm; }
+      .card { border: 1px dashed #999; padding: 6mm; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>QR Codes dos andares</h1>
+    <p class="sub">Um QR code para cada andar, do 3º ao 26º. Baixe cada um em PNG ou imprima todos.</p>
+
+    <div class="barra">
+      <label>Endereço do site
+        <input id="base" type="url" placeholder="https://seusite.netlify.app" autocomplete="off">
+      </label>
+      <button id="imprimir">Imprimir todos</button>
+    </div>
+    <p id="aviso" hidden></p>
+    <div class="grade" id="grade"></div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+  <script>
+    var PRIMEIRO = 3, ULTIMO = 26;
+    var baseInput = document.getElementById("base");
+    var grade = document.getElementById("grade");
+    var aviso = document.getElementById("aviso");
+
+    if (location.protocol.indexOf("http") === 0) baseInput.value = location.origin;
+
+    function desenhar(url, rotulo) {
+      var qr = qrcode(0, "M");
+      qr.addData(url);
+      qr.make();
+      var n = qr.getModuleCount(), cel = 12, margem = 4;
+      var lado = (n + margem * 2) * cel, rodape = 110;
+      var c = document.createElement("canvas");
+      c.width = lado; c.height = lado + rodape;
+      var x = c.getContext("2d");
+      x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height);
+      x.fillStyle = "#000";
+      for (var r = 0; r < n; r++)
+        for (var k = 0; k < n; k++)
+          if (qr.isDark(r, k)) x.fillRect((k + margem) * cel, (r + margem) * cel, cel, cel);
+      x.fillStyle = "#0f1b2e";
+      x.textAlign = "center"; x.textBaseline = "middle";
+      x.font = "700 56px system-ui, Arial, sans-serif";
+      x.fillText(rotulo, lado / 2, lado + 42);
+      x.fillStyle = "#5b6b82";
+      x.font = "400 24px system-ui, Arial, sans-serif";
+      x.fillText("Projetos do edifício", lado / 2, lado + 88);
+      return c;
+    }
+
+    function baixar(canvas, nome) {
+      canvas.toBlob(function (blob) {
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = nome;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+      }, "image/png");
+    }
+
+    function gerar() {
+      grade.innerHTML = ""; aviso.hidden = true;
+      var base = baseInput.value.trim().replace(/\/+$/, "");
+      if (!/^https?:\/\//.test(base)) {
+        aviso.textContent = "Digite o endereço do site (começando com https://) para gerar os QR codes.";
+        aviso.hidden = false; return;
+      }
+      if (typeof qrcode !== "function") {
+        aviso.textContent = "Não foi possível carregar o gerador de QR code. Verifique a internet e recarregue a página.";
+        aviso.hidden = false; return;
+      }
+      for (var n = PRIMEIRO; n <= ULTIMO; n++) {
+        (function (n) {
+          var card = document.createElement("div"); card.className = "card";
+          var canvas = desenhar(base + "/andar-" + n + "/", n + "º andar");
+          var b = document.createElement("button"); b.textContent = "Baixar PNG";
+          b.onclick = function () { baixar(canvas, "qrcode-andar-" + n + ".png"); };
+          card.appendChild(canvas); card.appendChild(b); grade.appendChild(card);
+        })(n);
+      }
+    }
+
+    baseInput.addEventListener("input", gerar);
+    document.getElementById("imprimir").onclick = function () { window.print(); };
+    gerar();
+  </script>
+</body>
+</html>

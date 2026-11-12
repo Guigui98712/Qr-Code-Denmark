@@ -1,0 +1,10 @@
+1) LINKS DO DRIVE
+   Abra o links.js e cole, para cada andar (3 a 26), o link do PDF de
+   Arquitetura, Alvenaria e Hidráulica.
+2) PUBLICAR
+   Suba os arquivos no GitHub (o Netlify publica sozinho).
+3) QR CODES
+   Abra https://SEU-SITE.netlify.app/qrcodes.html
+   Baixe os QR codes em PNG ou clique em "Imprimir todos".
+4) TESTE
+   https://SEU-SITE.netlify.app/ mostra a lista de andares.
